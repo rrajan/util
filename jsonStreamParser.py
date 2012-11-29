@@ -50,13 +50,13 @@ class State:
         self.lastField = self.F[self.brkts]
         self.brkts = self.brkts + 1
         self.acceptNewField()
-        self.printState()
+        #self.printState()
 
     def closeBracket(self):
         self.brkts = self.brkts - 1
         self.F.pop()
         self.lastField = self.F[self.brkts - 1]
-        self.printState()
+        #self.printState()
 
     def addField(self, field):
         if (self.acceptField):
@@ -64,14 +64,14 @@ class State:
             self.F[self.brkts] = self.lastField + self.sep + tfield
             self.acceptField = False
             self.lastVal = tfield
-            self.printState()
+            #self.printState()
             return True
         return False
 
     def addValue(self,val):
         self.lastVal = val.strip()
         if (len(self.lastVal) > 0):
-            print "Adding ", self.F[self.brkts] , " : ",  self.lastVal
+            #print "Adding ", self.F[self.brkts] , " : ",  self.lastVal
             self.rowDict[self.F[self.brkts]] = self.lastVal
             self.lastVal = ""
 
@@ -128,7 +128,7 @@ def organize(line, myState):
             if (("\"" == c or "\'" == c) and (line[i-1] != "\\" or line[i-2] == "\\")):
                 myState.updateQuotes(c)
 
-        myState.lines = myState.line + 1
+        myState.lines = myState.lines + 1
 
     except:
         myState.printState()
@@ -138,6 +138,7 @@ def lazyRead():
     myState = State()
     for line in sys.stdin:
         organize(line, myState)
+    sys.stderr.write("Parsed " + `myState.lines` + " lines, created " + `myState.rows` + " records\n")
 
 if __name__ == '__main__':
     lazyRead()
