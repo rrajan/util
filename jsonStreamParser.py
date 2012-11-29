@@ -37,7 +37,8 @@ class State:
 
     def checkState(self):
         if (0 > self.brkts):
-            print "State: Error ... extra closing brackets at record: ", r
+            print "State: Error ... extra closing brackets at: "
+            self.printState()
             return -1
         return (self.brkts * (len(self.F) - 1)) # should return zero if everything is fine
 
@@ -49,11 +50,13 @@ class State:
         self.lastField = self.F[self.brkts]
         self.brkts = self.brkts + 1
         self.acceptNewField()
+        self.printState()
 
     def closeBracket(self):
         self.brkts = self.brkts - 1
         self.F.pop()
         self.lastField = self.F[self.brkts - 1]
+        self.printState()
 
     def addField(self, field):
         if (self.acceptField):
@@ -61,13 +64,14 @@ class State:
             self.F[self.brkts] = self.lastField + self.sep + tfield
             self.acceptField = False
             self.lastVal = tfield
+            self.printState()
             return True
         return False
 
     def addValue(self,val):
         self.lastVal = val.strip()
         if (len(self.lastVal) > 0):
-            #print "Adding ", self.F[self.brkts] , " : ",  self.lastVal
+            print "Adding ", self.F[self.brkts] , " : ",  self.lastVal
             self.rowDict[self.F[self.brkts]] = self.lastVal
             self.lastVal = ""
 
@@ -121,20 +125,19 @@ def organize(line, myState):
                         myState.addRow()
                         myState.printRow()
 
-            if (("\"" == c or "\'" == c) and line[i-1] != "\\"):
+            if (("\"" == c or "\'" == c) and (line[i-1] != "\\" or line[i-2] == "\\")):
                 myState.updateQuotes(c)
 
         myState.lines = myState.line + 1
-        myState.printState()
 
     except:
+        myState.printState()
         myState.clear()
 
 def lazyRead():
     myState = State()
     for line in sys.stdin:
         organize(line, myState)
-        myState.checkState()
 
 if __name__ == '__main__':
     lazyRead()
