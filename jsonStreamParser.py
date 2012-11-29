@@ -27,6 +27,7 @@ class State:
             self.lastValue = ""
             self.F = [self.lastField]
             self.acceptField = True
+            self.rowDict = {}
 
     def printState(self):
         print "State: rows: ", self.rows, " lines: ", self.lines, " brkts: ", self.brkts, " fields: ", self.F
@@ -113,17 +114,17 @@ def organize(line, myState):
                 # i - 1 gives a problem so i ?
                 if (myState.delim == c):
                     myState.addField(line[pf:(i)])
-                    pf = i + 1
                     myState.acceptNewField()
+                    pf = i + 1
 
                 if ("}" == c or "," == c):
                     myState.addValue(line[pf:(i)])
                     pf = i + 1
+
                 if ("}" == c):
                     myState.closeBracket()
                     if (myState.brkts == 0):
                         myState.addRow()
-                        myState.printRow()
 
             if (("\"" == c or "\'" == c) and (line[i-1] != "\\" or line[i-2] == "\\")):
                 myState.updateQuotes(c)
@@ -132,12 +133,17 @@ def organize(line, myState):
 
     except:
         myState.printState()
-        myState.clear()
+        myState.clear(True)
 
 def lazyRead():
     myState = State()
+    rows = 0
     for line in sys.stdin:
         organize(line, myState)
+        if (myState.rows > rows):
+            myState.printRow()
+            myState.clear()
+
     sys.stderr.write("Parsed " + `myState.lines` + " lines, created " + `myState.rows` + " records\n")
 
 if __name__ == '__main__':
