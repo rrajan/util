@@ -1,4 +1,5 @@
 import numpy as np
+import types
 
 class TableReader():
 
@@ -8,10 +9,16 @@ class TableReader():
         self.cnames = ""
         self.dat    = 0
 
-    def read(self, fname, hasRowName=True, hasColName=True, delim=","):
+    def read(self, fname, hasRowName=False, hasColName=False, delim=",", comments=types.NoneType, dtype=np.float32):
         self.fname = fname
-        mat = np.genfromtxt(fname, delimiter=delim, skiprows=0,dtype=None)
-        self.rnames = mat[:,0]
-        self.cnames = mat[0,:]
-        r,c = mat.shape
-        self.dat = np.array(mat[1:r,1:c], dtype=np.float32)
+        mat = np.genfromtxt(fname, delimiter=delim, skip_header=0, dtype=types.StringType, comments=comments)
+        rstart=0
+        cstart=0
+        if (hasRowName):
+            self.rnames = mat[:,0]
+            cstart=1
+        if (hasColName):
+            self.cnames = mat[0,:]
+            rstart=1
+
+        self.dat = np.array(mat[rstart:,cstart:], dtype=dtype)
