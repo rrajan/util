@@ -100,6 +100,7 @@ class TF:
         if (tfmin > 0):
             keys, vals = self.filtTerms(tfmin, tfmax)
         else:
+            self.wc()
             keys = self.wcs.keys()
             vals = self.wcs.values()
 
