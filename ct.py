@@ -1,6 +1,7 @@
 import csv
 from collections import OrderedDict
 import numpy as np
+import pandas as pd
 
 class ContingencyTable:
     def __init__(self, fname="", header=True, primary=0, ncols=100):
@@ -54,3 +55,19 @@ class ContingencyTable:
 
         self.colDict = cols
         self.rowDict = OrderedDict(sorted(self.pDict.items(), key=lambda x:x[1]))
+
+    def buildIndicators(self, docs, categories, single=False):
+        keys = {}
+        for i, k in enumerate(categories): keys[k] = i
+        L = len(categories)
+        umat = np.zeros(shape=(len(docs), L+1), dtype=np.int)
+        if (single):
+            print "single element per line"
+            for i, k in enumerate(docs):
+                umat[i, keys.get(k, L)] = 1
+        else:
+            print "multiple elements per line"
+            for i, l in enumerate(docs):
+                for k in l:
+                    umat[i, keys.get(k, L)] = 1
+        return pd.DataFrame(umat, columns = list(categories) + ['UNKNOWN'])
