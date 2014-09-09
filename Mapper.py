@@ -33,17 +33,24 @@ class Mapper:
     def markResid(self, df):
         df['UNKNOWN'] = (df.sum(axis=1) == 0).astype(np.int)
 
-    def remap(self, df_col, key_map, rev_map=True, mark_resid=True):
+    def remap(self, df_col, key_map, rev_map=False, mark_resid=True):
+        df_col2 = pd.DataFrame(df_col, copy=True)
         keys = {}
         if (rev_map):
-            for k,v in key_map.itertuples(): keys[v] = k
+            for k,v in key_map.itertuples():
+                keys[v] = k
         else:
-            keys = key_map
+            for k,v in key_map.itertuples():
+                keys[k] = v
 
-        for i,k in enumerate(df_col):
+        for k in set(keys.values()): keys[k] = k
+
+        for i,k in enumerate(df_col2[df_col2.columns[0]]):
             new_val = keys.get(k, '_UNKNOWN_')
             if (mark_resid):
-                df_col.iloc[i] = new_val
+                df_col2.iloc[i] = new_val
             else:
                 if (new_val != '_UNKNOWN_'):
-                    df_col.iloc[i] = new_val
+                    df_col2.iloc[i] = new_val
+
+        return df_col2
